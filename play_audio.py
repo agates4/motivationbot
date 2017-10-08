@@ -7,6 +7,8 @@ def play_audio(speak):
     import subprocess
     if len(speak) > 200:
         speak = "That's a good goal!"
+    if len(speak) == 0:
+        speak = "That's a good goal!"
     print(speak)
     speak = urllib.quote_plus(speak)
     print(speak)

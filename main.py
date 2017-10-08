@@ -21,6 +21,7 @@ def hello_world():
 
     userInput = get_input()
     analyzed = analyze_text(userInput)
+    print("Analyzed: " + analyzed)
 
     quote = get_quotes(analyzed)
 
