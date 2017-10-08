@@ -65,6 +65,7 @@ def run_quickstart():
     print(analyzed)
 
     quote = brainy_quotes(analyzed)
+
     play_audio(quote)
 
 
@@ -90,6 +91,8 @@ def brainy_quotes(text):
         if len(div.string) > character_limit:
             mydivs.pop(index)
     length = len(mydivs) - 1
+    if length == -1:
+        return "That's a good goal!"
     print("Got quotes! We have: " + str(length) + " total quotes.")
     return mydivs[randint(0, length)].string
 
@@ -97,10 +100,14 @@ def play_audio(speak):
     import pygame
     import mutagen.mp3
     import urllib
+    if len(speak) > 200:
+        speak = "That's a good goal!"
     print(speak)
     speak = urllib.quote_plus(speak)
+    print(speak)
     music_file = "google_tts.mp3"
     bash_com = "curl 'https://translate.google.com/translate_tts?ie=UTF-8&q=" + speak + "&tl=en&tk=995126.592330&client=tw-ob' -H 'user-agent: stagefright/1.2 (Linux;Android 5.0)' -H 'referer: https://translate.google.com/' > " + music_file
+    print(bash_com)
     p = subprocess.Popen(bash_com, shell=True)
     (output, err) = p.communicate()
 
@@ -165,7 +172,17 @@ def analyze_text(text):
     entity_type = ('UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION',
                    'EVENT', 'WORK_OF_ART', 'CONSUMER_GOOD', 'OTHER')
 
-    return entities[0].name
+    fullEntity = ""
+    if len(entities) >= 1:
+        fullEntity = entities[0].name
+    else:
+        fullEntity = "happy"
+
+    for index, entity in enumerate(entities):
+        if index != 0:
+            fullEntity = fullEntity + " " + entity.name
+    
+    return fullEntity
 
 
 if __name__ == '__main__':
