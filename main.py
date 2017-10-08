@@ -15,9 +15,7 @@ from get_quotes import get_quotes
 from get_input import get_input
 from play_audio import play_audio
 
-@app.route('/')
 def hello_world():
-    # return analyze_image()
     speak = "Wow, you look really sad! Try smiling more!"
     play_audio(speak)
 
@@ -30,10 +28,9 @@ def hello_world():
     quote = get_quotes(analyzed)
 
     play_audio(quote)
-    return 'Hello, World!'
 
-@app.route('/analyze_image', methods=['POST'])
-def upload():
-    print(requests)
-    # imagefile = flask.request.files.get('imagefile', '')
+def run_quickstart():
+    hello_world()
 
+if __name__ == '__main__':
+    run_quickstart()
