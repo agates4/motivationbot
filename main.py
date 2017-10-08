@@ -1,6 +1,3 @@
-from flask import Flask
-app = Flask(__name__)
-
 import pygame
 import mutagen.mp3
 import urllib
