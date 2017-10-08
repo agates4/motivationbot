@@ -29,7 +29,10 @@ def get_quotes(text):
     if length == -1:
         return "Your goal of " + old_text + " is a pretty good one!"
     print("Got quotes! We have: " + str(length) + " total quotes.")
-    return mydivs[randint(0, length)].string
+    returningQuote = mydivs[randint(0, length)].string
+    while len(returningQuote) > 200:
+        returningQuote = mydivs[randint(0, length)].string
+    return returningQuote
 
 def run_quickstart():
     print(get_quotes("happy"))
