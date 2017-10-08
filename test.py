@@ -54,6 +54,8 @@ def run_quickstart():
         print('surprise: {}'.format(likelihood_name[face.surprise_likelihood]))
         print('sorrow: {}'.format(likelihood_name[face.sorrow_likelihood]))
 
+    
+
     speak = "Wow, you look really sad! Try smiling more!"
     play_audio(speak)
 
@@ -72,7 +74,7 @@ def run_quickstart():
 def brainy_quotes(text):
     import httplib2, re
     character_limit = 200
-
+    old_text = text
     text = text.replace(" ", "+")
     html_file = "quotes.html"
     bash_com = "curl 'https://www.brainyquote.com/search_results.html?q=" + text + "&tl=en&tk=995126.592330&client=tw-ob' -H 'user-agent: stagefright/1.2 (Linux;Android 5.0)' -H 'referer: https://translate.google.com/' > " + html_file
@@ -92,7 +94,7 @@ def brainy_quotes(text):
             mydivs.pop(index)
     length = len(mydivs) - 1
     if length == -1:
-        return "That's a good goal!"
+        return "Your goal of " + old_text + " is a pretty good one!"
     print("Got quotes! We have: " + str(length) + " total quotes.")
     return mydivs[randint(0, length)].string
 
@@ -100,6 +102,9 @@ def play_audio(speak):
     import pygame
     import mutagen.mp3
     import urllib
+    import io
+    import os
+    import subprocess
     if len(speak) > 200:
         speak = "That's a good goal!"
     print(speak)
@@ -175,7 +180,7 @@ def analyze_text(text):
     fullEntity = ""
     if len(entities) >= 1:
         fullEntity = entities[0].name
-    else:
+    if len(entities) < 1:
         fullEntity = "happy"
 
     for index, entity in enumerate(entities):
