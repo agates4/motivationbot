@@ -61,15 +61,44 @@ def run_quickstart():
     play_audio(speak)
 
     userInput = get_user_input()
+    analyzed = analyze_text(userInput)
+    print(analyzed)
 
-    analyze_text(userInput)
+    quote = brainy_quotes(analyzed)
+    play_audio(quote)
 
-    # play_audio(userInput)
+
+def brainy_quotes(text):
+    import httplib2, re
+    character_limit = 200
+
+    text = text.replace(" ", "+")
+    html_file = "quotes.html"
+    bash_com = "curl 'https://www.brainyquote.com/search_results.html?q=" + text + "&tl=en&tk=995126.592330&client=tw-ob' -H 'user-agent: stagefright/1.2 (Linux;Android 5.0)' -H 'referer: https://translate.google.com/' > " + html_file
+    p = subprocess.Popen(bash_com, shell=True)
+    (output, err) = p.communicate()
+    #This makes the wait possible
+    p_status = p.wait()
+    # print(p_status)
+
+    from bs4 import BeautifulSoup
+    from random import randint
+    import requests
+    soup = BeautifulSoup(open(html_file), "html.parser")
+    mydivs = soup.find_all("a", class_="b-qt")
+    for index, div in enumerate(mydivs):
+        if len(div.string) > character_limit:
+            mydivs.pop(index)
+    length = len(mydivs) - 1
+    print("Got quotes! We have: " + str(length) + " total quotes.")
+    return mydivs[randint(0, length)].string
 
 def play_audio(speak):
     import pygame
     import mutagen.mp3
-    speak = speak.replace(" ", "%20")
+    import urllib
+    print(speak)
+    speak = urllib.quote_plus(speak)
     music_file = "google_tts.mp3"
     bash_com = "curl 'https://translate.google.com/translate_tts?ie=UTF-8&q=" + speak + "&tl=en&tk=995126.592330&client=tw-ob' -H 'user-agent: stagefright/1.2 (Linux;Android 5.0)' -H 'referer: https://translate.google.com/' > " + music_file
     p = subprocess.Popen(bash_com, shell=True)
@@ -114,20 +143,30 @@ def analyze_text(text):
     from google.cloud import language
     from google.cloud.language import enums
     from google.cloud.language import types
+    import six
+    import argparse
 
-    # Instantiates a client
+    """Detects entities in the text."""
     client = language.LanguageServiceClient()
 
-    # The text to analyze
+    if isinstance(text, six.binary_type):
+        text = text.decode('utf-8')
+
+    # Instantiates a plain text document.
     document = types.Document(
         content=text,
         type=enums.Document.Type.PLAIN_TEXT)
 
-    # Detects the sentiment of the text
-    sentiment = client.analyze_sentiment(document=document).document_sentiment
+    # Detects entities in the document. You can also analyze HTML with:
+    #   document.type == enums.Document.Type.HTML
+    entities = client.analyze_entities(document).entities
 
-    print('Text: {}'.format(text))
-    print('Sentiment: {}, {}'.format(sentiment.score, sentiment.magnitude))
+    # entity types from enums.Entity.Type
+    entity_type = ('UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION',
+                   'EVENT', 'WORK_OF_ART', 'CONSUMER_GOOD', 'OTHER')
+
+    return entities[0].name
+
 
 if __name__ == '__main__':
     run_quickstart()
